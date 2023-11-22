@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body style="background-color: black;">
+    <canvas></canvas>
+</body>
+</html>
+
+<script>
+    const canvas = document.querySelector("canvas")
+    const ctx = canvas.getContext("2d")
+
+    canvas.width = 500
+    canvas.height = 500
+
+    canvas.style.backgroundColor = "black"
+    canvas.style.border = "2px solid white"
+
+    class LaserX {
+        constructor() {
+            this.y = Math.floor(Math.random() * canvas.height)
+            this.draw()
+        }
+
+        draw() {
+            ctx.strokeStyle = "red"
+            ctx.lineWidth = 5
+            ctx.beginPath()
+            ctx.moveTo(0, this.y)
+            ctx.lineTo(canvas.width, this.y)
+            ctx.stroke()
+
+            this.reDraw()
+        }
+
+        reDraw() {
+            this.y = Math.floor(Math.random() * canvas.height)
+        }
+    }
+
+    let laser = new LaserX()
+
+    class Player {
+        constructor(x, y) {
+            this.x = x
+            this.y = y
+            this.a = 1
+        }
+
+        draw() {
+            ctx.fillStyle = "white"
+            ctx.fillRect(this.x, this.y, 30, 30)
+
+            if(laser.y >= this.y && laser.y <= this.y + 30) {
+                console.log("thua")
+            }
+        }
+
+        moveUp() {
+            this.a ++
+            if(this.y <= 0) {
+                this.y = canvas.height
+            } else {
+                this.y -= 0.7 * this.a
+            }
+        }
+
+        moveRight() {
+            this.a ++
+            if(this.x > canvas.width) {
+                this.x = 0
+            } else {
+                this.x += 0.7 * this.a
+            }
+        }
+
+        moveDown() {
+            this.a ++
+            if(this.y >= canvas.height) {
+                this.y = 0
+            } else {
+                this.y += 0.7 * this.a
+            }
+        }
+
+        moveLeft() {
+            this.a ++
+            if(this.x <= 0) {
+                this.x = canvas.width
+            } else {
+                this.x -= 0.7 * this.a
+            }
+        }
+    }
+
+    let player = new Player(canvas.width / 2 - 30, canvas.height / 2 - 30)
+    
+    document.addEventListener("keydown", (e) => {
+        switch(e.key) {
+            case "w": {
+                player.moveUp()
+                break
+            } 
+            case "d": {
+                player.moveRight()
+                break
+            } 
+            case "s": {
+                player.moveDown()
+                break
+            } 
+            case "a": {
+                player.moveLeft()
+                break
+            } 
+        }
+    })
+
+
+    document.addEventListener("keyup", () => {
+        player.a = 1
+    })
+
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        requestAnimationFrame(gameLoop)
+    }
+    
+    function laserLoop() {
+        laser.draw()
+        
+        setTimeout(() => {
+            requestAnimationFrame(laserLoop)
+        }, 2000)
+    }
+    
+    function playerLoop() {
+        player.draw()
+        requestAnimationFrame(playerLoop)
+    }
+
+    gameLoop()
+    playerLoop()
+    laserLoop()
+</script>
