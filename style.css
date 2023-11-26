@@ -15,23 +15,24 @@ body {
     background-color: black;
 }
 
-canvas {
+canvas, .menu {
     border: 2px solid white;
     position: absolute;
-    left: 50px;
+    left: 50%;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%);
+}
+
+canvas {
     cursor: none;
 }
 
 .menu {
     width: 500px;
     height: 500px;
-    position: absolute;
-    left: 50px;
-    top: 50%;
-    transform: translateY(-50%);
     text-align: center;
+    background-color: rgba(255, 255, 255, 0.231);
+    opacity: 0.8;
 }
 
 #startMenu {
@@ -44,6 +45,9 @@ canvas {
 
 .menu div {
     margin-top: 50px;
+    height: 200px;
+    align-items: center;
+
 }
 
 .btn {
@@ -54,6 +58,12 @@ canvas {
     border-radius: 10px;
     border: 2px solid white;
     cursor: pointer;
+    display: block;
+    margin: 20px auto;
+}
+
+.btn:hover {
+    box-shadow: 3px 3px 6px white;
 }
 
 #gameOver {

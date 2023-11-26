@@ -4,11 +4,6 @@ let isGameStarted = false
 const WIDTH = 500 //set canvas width
 const HEIGHT = 500 //set canvas height 
 
-document.querySelector("#startBtn").addEventListener("click", () => {
-    isGameStarted = true
-    document.querySelector("#startMenu").style.display = "none"
-})
-
 function setup() {
     createCanvas(WIDTH, HEIGHT)
     frameRate(30)
@@ -17,20 +12,50 @@ function setup() {
     rectMode(CENTER)
     
     textFont('monospace')
-    textSize(40)
+    textSize(13)
     fill('white')
-    textAlign(CENTER, CENTER)
+    textAlign(LEFT)
 }
 
 class Player {
-    constructor() {
-        this.x = WIDTH / 2
-        this.y = HEIGHT / 2
+    constructor(x, y) {
+        this.x = x
+        this.y = y
         this.size = 20
         this.acceleration = 0
         this.speed = 5
+        this.point = 0
+        this.maxHealth = 3
+        this.health = this.maxHealth
+    }
+
+    draw() {
+        square(this.x, this.y, this.size)
+    }
+
+    movement() {
+        // Nếu nhấn nút W hoặc phím mũi tên lên, giảm y
+        if (keyIsDown(87) || keyIsDown(UP_ARROW)) {
+            this.y -= this.speed;
+        }
+        // Nếu nhấn nút A hoặc phím mũi tên trái, giảm x
+        if (keyIsDown(65) || keyIsDown(LEFT_ARROW)) {
+            this.x -= this.speed;
+        }
+        // Nếu nhấn nút S hoặc phím mũi tên xuống, tăng y
+        if (keyIsDown(83) || keyIsDown(DOWN_ARROW)) {
+            this.y += this.speed;
+        }
+        // Nếu nhấn nút D hoặc phím mũi tên phải, tăng x
+        if (keyIsDown(68) || keyIsDown(RIGHT_ARROW)) {
+            this.x += this.speed;
+        }
+        // Giới hạn vị trí của đối tượng trong khung hình
+        this.x = constrain(this.x, 0 + (this.size / 2), WIDTH - (this.size / 2));
+        this.y = constrain(this.y, 0 + (this.size / 2), HEIGHT - (this.size / 2));
     }
 }
+
 
 class Bullet {
     constructor(x, y) {
@@ -98,43 +123,54 @@ class Enemy {
 var bullets = []
 var enemys = []
 
-let player = new Player
+let player = new Player(WIDTH / 2, HEIGHT / 2)
 
-function moveObject() {
-    // Nếu nhấn nút W hoặc phím mũi tên lên, giảm y
-    if (keyIsDown(87) || keyIsDown(UP_ARROW)) {
-        player.y -= player.speed;
-    }
-    // Nếu nhấn nút A hoặc phím mũi tên trái, giảm x
-    if (keyIsDown(65) || keyIsDown(LEFT_ARROW)) {
-        player.x -= player.speed;
-    }
-    // Nếu nhấn nút S hoặc phím mũi tên xuống, tăng y
-    if (keyIsDown(83) || keyIsDown(DOWN_ARROW)) {
-        player.y += player.speed;
-    }
-    // Nếu nhấn nút D hoặc phím mũi tên phải, tăng x
-    if (keyIsDown(68) || keyIsDown(RIGHT_ARROW)) {
-        player.x += player.speed;
-    }
-    // Giới hạn vị trí của đối tượng trong khung hình
-    player.x = constrain(player.x, 0 + (player.size / 2), WIDTH - (player.size / 2));
-    player.y = constrain(player.y, 0 + (player.size / 2), HEIGHT - (player.size / 2));
+document.querySelector("#startBtn").addEventListener("click", () => {
+    isGameStarted = true
+    isGameOver = false
+    document.querySelector("#startMenu").style.display = "none"
+})
+
+document.querySelector("#restartBtn").addEventListener("click", () => {
+    isGameOver = false
+    isGameStarted = true
+    resetGame()
+    document.querySelector("#gameOver").style.display = "none"
+})
+
+document.querySelector("#returnBtn").addEventListener("click", () => {
+    isGameStarted = false
+    isGameOver = false
+    resetGame()
+    document.querySelector("#gameOver").style.display = "none"
+    document.querySelector("#startMenu").style.display = "block"
+})
+
+function resetGame() {
+    player.x = WIDTH / 2
+    player.y = HEIGHT / 2
+    player.point = 0
+    player.health = player.maxHealth
+
+    enemys = []
+    bullets = []
 }
 
 let timeEnemySpawn = 0
-let coolDownSpawn = 300
+let coolDownSpawn = 200
 
 function draw() {
     if(!isGameStarted) {
         
     } else if (isGameStarted && !isGameOver) {
+        //clear screen
         background('black')
+
         //draw player
         rectMode(CENTER)
         fill('white')
-        square(player.x, player.y, player.size)
-        moveObject()
+        player.draw()
+        player.movement()
 
         //draw bullet
         var indexToDelete = -1;
@@ -169,34 +205,58 @@ function draw() {
             indexToDelete = -1
         }
 
-        enemys.forEach((element) => {
-            element.x = element.x + element.xSpeed * element.xDirection
-            element.y = element.y + element.ySpeed * element.yDirection
-            element.draw()
+        enemys.forEach((enemy, index) => {
+            enemy.x = enemy.x + enemy.xSpeed * enemy.xDirection
+            enemy.y = enemy.y + enemy.ySpeed * enemy.yDirection
+            enemy.draw()
 
-            element.moveToPlayer(player.x, player.y)
+            enemy.moveToPlayer(player.x, player.y)
+            
+            //player hurt
+            if (collideRectRect(enemy.x, enemy.y, enemy.size, enemy.size, player.x, player.y, player.size, player.size)) {
+                enemyIndexToDelete = index
 
-            if (collideRectRect(element.x, element.y, element.size, element.size, player.x, player.y, player.size, player.size)) {
-                isGameOver = true
+                player.health -= 1
+                
+                if(player.health <= 0) {
+                    isGameOver = true
+                }
             }
         })
 
+        //enemy dead
         if (enemyIndexToDelete !== -1) {
+            player.point += 1
             enemys.splice(enemyIndexToDelete, 1)
             enemyIndexToDelete = -1
         }
 
         //draw enemy
         timeEnemySpawn += 1
+        console.log(timeEnemySpawn, coolDownSpawn)
 
-        if (timeEnemySpawn === coolDownSpawn) {
-            timeEnemySpawn = 0
-            var enemy = new Enemy(random(20, WIDTH - 20), random(20, HEIGHT - 20))
-            enemys.push(enemy)
+        if (timeEnemySpawn >= coolDownSpawn) {
+            timeEnemySpawn = random(0, 200)
+            coolDownSpawn -= 4
+            let spawnX = random(20, WIDTH - 20)
+            let spawnY = random(20, HEIGHT - 20)
+            var enemy = new Enemy(spawnX, spawnY)
+
+            //enemy warning spawn
+            ellipse(spawnX, spawnY, 10, 10)
+            
+            setTimeout(() => {
+                enemys.push(enemy)
+            }, 600)
         }
 
         //draw crosshair
         drawCrosshair()
+
+        // ui draw
+        fill("white")
+        text("point: " + player.point, 10, 20)
+        text("health: " + player.health, 100, 20)
     } else if (isGameOver) {
         document.querySelector("#gameOver").style.display = "block"
     }
