@@ -1,0 +1,15 @@
+html, body{
+    background-color: darkslategrey;
+}
+h1{
+    display: flex;
+    font-size: 55px;
+    justify-content: center;
+}
+.scorebox{
+    
+    display: flex;
+    font-size: 30px;
+    justify-content: center;
+    margin-left: 35%;
+}
