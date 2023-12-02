@@ -26,6 +26,8 @@ function setup() {
 
 var bullets = []
 var enemys = []
+let expText = []
+let damageText = []
 
 let player = new Player(WIDTH / 2, HEIGHT / 2)
 
@@ -74,7 +76,6 @@ function resetGame() {
 
 let timeEnemySpawn = 0
 let coolDownSpawn = 200
-let expText = []
 
 function draw() {
     if(!isGameStarted) {
@@ -118,11 +119,14 @@ function draw() {
                 if (collideSquareCircle(enemy.x, enemy.y, enemy.size, element.x, element.y, element.rad)) {
                     enemy.health -= (element.damage + bulletDamagePlus)
 
+                    damageText.unshift([element.damage, element.x, element.y])
+
                     if(enemy.health <= 0) {
                         enemyIndexToDelete = enemyIndex
                         player.point += enemy.point
                         expText.unshift(enemy.point)
                     }
+
                     indexToDelete = index
                 }
             })
@@ -188,10 +192,20 @@ function draw() {
         drawCrosshair()
 
         expText.forEach((point) => {
+            textSize(10)
             fill('white')
             text("+" + point, player.x + 15, player.y - 15)
             setTimeout(() => {
                 expText.shift()
+            }, 500)
+        })
+
+        damageText.forEach((point) => {
+            textSize(10)
+            fill('white')
+            text("-" + point[0], point[1] + 20, point[2] - 20)
+            setTimeout(() => {
+                damageText.shift()
             }, 500)
         })
 
