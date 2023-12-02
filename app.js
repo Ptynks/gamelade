@@ -1,5 +1,13 @@
+const startBtn = document.querySelector("#startBtn")
+const startMenu = document.querySelector("#startMenu")
+const restartBtn = document.querySelector("#restartBtn")
+const gameOver = document.querySelector("#gameOver")
+const returnBtn = document.querySelector("#returnBtn")
+const skillMenu = document.querySelector("#skillMenu")
+
 let isGameOver = false
 let isGameStarted = false
+let isPause = false
 
 const WIDTH = 500 //set canvas width
 const HEIGHT = 500 //set canvas height 
@@ -10,114 +18,10 @@ function setup() {
     ellipseMode(RADIUS)
     imageMode(CENTER)
     rectMode(CENTER)
-    
     textFont('monospace')
     textSize(13)
     fill('white')
     textAlign(LEFT)
-}
-
-class Player {
-    constructor(x, y) {
-        this.x = x
-        this.y = y
-        this.size = 20
-        this.acceleration = 0
-        this.speed = 5
-        this.point = 0
-        this.maxHealth = 3
-        this.health = this.maxHealth
-    }
-
-    draw() {
-        square(this.x, this.y, this.size)
-    }
-
-    movement() {
-        // Nếu nhấn nút W hoặc phím mũi tên lên, giảm y
-        if (keyIsDown(87) || keyIsDown(UP_ARROW)) {
-            this.y -= this.speed;
-        }
-        // Nếu nhấn nút A hoặc phím mũi tên trái, giảm x
-        if (keyIsDown(65) || keyIsDown(LEFT_ARROW)) {
-            this.x -= this.speed;
-        }
-        // Nếu nhấn nút S hoặc phím mũi tên xuống, tăng y
-        if (keyIsDown(83) || keyIsDown(DOWN_ARROW)) {
-            this.y += this.speed;
-        }
-        // Nếu nhấn nút D hoặc phím mũi tên phải, tăng x
-        if (keyIsDown(68) || keyIsDown(RIGHT_ARROW)) {
-            this.x += this.speed;
-        }
-        // Giới hạn vị trí của đối tượng trong khung hình
-        this.x = constrain(this.x, 0 + (this.size / 2), WIDTH - (this.size / 2));
-        this.y = constrain(this.y, 0 + (this.size / 2), HEIGHT - (this.size / 2));
-    }
-}
-
-
-class Bullet {
-    constructor(x, y) {
-        this.rad = 3
-        this.x = x
-        this.y = y
-        this.xSpeed = 10 // default 2.8
-        this.ySpeed = 10 //default 2.2
-        this.xDirection = 0
-        this.yDirection = 0
-        this.spawn()
-    }
-
-    draw() {
-        ellipse(this.x, this.y, this.rad, this.rad)
-    }
-
-    spawn() {
-        this.x = player.x
-        this.y = player.y
-
-        let dx = mouseX - this.x
-        let dy = mouseY - this.y
-
-        let d = sqrt(dx * dx + dy * dy)
-
-        let ux = dx / d
-        let uy = dy / d
-
-        this.xDirection = ux
-        this.yDirection = uy
-    }
-}
-
-class Enemy {
-    constructor(x, y) {
-        this.x = x
-        this.y = y
-        this.size = 20
-        this.xSpeed = 2
-        this.ySpeed = 2
-        this.xDirection = 0
-        this.yDirection = 0
-    }
-
-    draw() {
-        fill('red')
-        rect(this.x, this.y, this.size, this.size)
-    }
-
-    moveToPlayer(x, y) {
-        let dx = x - this.x
-        let dy = y - this.y
-
-        let d = sqrt(dx * dx + dy * dy)
-
-        let ux = dx / d
-        let uy = dy / d
-
-        this.xDirection = ux
-        this.yDirection = uy
-    }
 }
 
 var bullets = []
@@ -125,32 +29,44 @@ var enemys = []
 
 let player = new Player(WIDTH / 2, HEIGHT / 2)
 
-document.querySelector("#startBtn").addEventListener("click", () => {
+startBtn.addEventListener("click", () => {
     isGameStarted = true
     isGameOver = false
-    document.querySelector("#startMenu").style.display = "none"
+    startMenu.style.display = "none"
 })
 
-document.querySelector("#restartBtn").addEventListener("click", () => {
+restartBtn.addEventListener("click", () => {
     isGameOver = false
     isGameStarted = true
     resetGame()
-    document.querySelector("#gameOver").style.display = "none"
+    gameOver.style.display = "none"
 })
 
-document.querySelector("#returnBtn").addEventListener("click", () => {
+returnBtn.addEventListener("click", () => {
     isGameStarted = false
     isGameOver = false
     resetGame()
-    document.querySelector("#gameOver").style.display = "none"
-    document.querySelector("#startMenu").style.display = "block"
+    gameOver.style.display = "none"
+    startMenu.style.display = "block"
 })
+
+function hideMenu() {
+    skillMenu.style.display = "none"
+    isPause = false
+    document.querySelector("canvas").style.cursor = "none"
+}
 
 function resetGame() {
     player.x = WIDTH / 2
     player.y = HEIGHT / 2
     player.point = 0
     player.health = player.maxHealth
+    player.level = 0
+    player.reloadBullet = player.maxBullet
+    player.isReloaded = false
+    player.pointToLevelUp = 100
+
+    bulletDamagePlus = 0
 
     enemys = []
     bullets = []
@@ -158,19 +74,26 @@ function resetGame() {
 
 let timeEnemySpawn = 0
 let coolDownSpawn = 200
+let expText = []
 
 function draw() {
     if(!isGameStarted) {
-        
-    } else if (isGameStarted && !isGameOver) {
+
+    } else if (isGameStarted && !isGameOver && !isPause) {
         //clear screen
         background('black')
+
+        //on pause 
+        if(keyIsDown(80)) {
+            isPause = true
+        }
 
         //draw player
         rectMode(CENTER)
         fill('white')
         player.draw()
         player.movement()
+        player.levelUp()
 
         //draw bullet
         var indexToDelete = -1;
@@ -193,10 +116,15 @@ function draw() {
             //check collision ennemy and bullet
             enemys.forEach((enemy, enemyIndex) => {
                 if (collideSquareCircle(enemy.x, enemy.y, enemy.size, element.x, element.y, element.rad)) {
-                    enemyIndexToDelete = enemyIndex
+                    enemy.health -= (element.damage + bulletDamagePlus)
+
+                    if(enemy.health <= 0) {
+                        enemyIndexToDelete = enemyIndex
+                        player.point += enemy.point
+                        expText.unshift(enemy.point)
+                    }
                     indexToDelete = index
                 }
-
             })
         })
 
@@ -227,20 +155,26 @@ function draw() {
         //enemy dead
         if (enemyIndexToDelete !== -1) {
             player.point += 1
+
+            fill('yellow')
+
+            ellipse(enemys[enemyIndexToDelete].x, enemys[enemyIndexToDelete].y, enemys[enemyIndexToDelete].size, enemys[enemyIndexToDelete].size)
             enemys.splice(enemyIndexToDelete, 1)
             enemyIndexToDelete = -1
         }
 
         //draw enemy
         timeEnemySpawn += 1
-        console.log(timeEnemySpawn, coolDownSpawn)
 
         if (timeEnemySpawn >= coolDownSpawn) {
             timeEnemySpawn = random(0, 200)
-            coolDownSpawn -= 4
+            if(coolDownSpawn > 100) {
+                coolDownSpawn -= 2
+            }
             let spawnX = random(20, WIDTH - 20)
             let spawnY = random(20, HEIGHT - 20)
-            var enemy = new Enemy(spawnX, spawnY)
+            let point = Math.floor(random(10, 50))
+            var enemy = new Enemy(spawnX, spawnY, point)
 
             //enemy warning spawn
             ellipse(spawnX, spawnY, 10, 10)
@@ -253,17 +187,57 @@ function draw() {
         //draw crosshair
         drawCrosshair()
 
+        expText.forEach((point) => {
+            fill('white')
+            text("+" + point, player.x + 15, player.y - 15)
+            setTimeout(() => {
+                expText.shift()
+            }, 500)
+        })
+
+        if(player.reloadBullet <= 0 && !player.isReloaded) {
+            player.isReloaded = true
+            setTimeout(() => {
+                player.reloadBullet = player.maxBullet
+                player.isReloaded = false
+            }, player.reloadTime)
+        }
+
         // ui draw
         fill("white")
-        text("point: " + player.point, 10, 20)
-        text("health: " + player.health, 100, 20)
+        textAlign(LEFT)
+        textSize(13)
+        text("health: " + player.health, 10, 20)
+        text("level: " + player.level, 10, HEIGHT - 30)
+        rect(0, HEIGHT - 10, player.point * WIDTH / 100, 20)
+        // for(let i = 0; i < player.reloadBullet; i++) {
+        //     ellipse(WIDTH - 20 * (i + 2), 20, 5, 5)
+        // }
+        textAlign(RIGHT)
+        textSize(10)
+        text(player.reloadBullet, player.x + 20, player.y + 20)
+
+        if(player.isReloaded) {
+            fill('white')
+            textAlign(CENTER)
+            textSize(8)
+            text("reload...", player.x, player.y - 20)
+        }
     } else if (isGameOver) {
         document.querySelector("#gameOver").style.display = "block"
+    } else if(isPause) {
+        document.querySelector("canvas").style.cursor = "pointer"
+        if(keyIsDown(80)) {
+            isPause = false
+        }
     }
 }
 
 function mousePressed() {
-    bullets.push(new Bullet(player.x, player.y))
+    if(player.reloadBullet > 0) {
+        player.reloadBullet -= 1
+        bullets.push(new Bullet(player.x, player.y))
+    } 
 }
 
 function drawCrosshair() {
