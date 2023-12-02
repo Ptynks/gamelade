@@ -58,9 +58,15 @@ class piece{
         this.fill(COLOR)
     }
     moveDown(){
-        this.unDraw();
-        this.y++;
-        this.draw();
+        if(!this.collision(0,1,this.activeTetromino)){
+            this.unDraw();
+            this.y++;
+            this.draw();  
+        }else{
+            this.lock();
+            p = randomPieces();
+        }
+        
     }
     moveLeft(){
         if(!this.collision(-1 , 0, this.activeTetromino)){
@@ -77,7 +83,21 @@ class piece{
             this.draw();
         }
     }
-
+    lock(){
+        for(let r = 0; r < this.activeTetromino.length;r++){
+            for(let c = 0; c < this.activeTetromino.length;c++){
+                if(!this.activeTetromino[r][c]){
+                    continue
+                }
+                if(this.y + r <0){
+                    alert('Game Over!!!');
+                    gameOver = true;
+                    break;
+                }
+                board[this.y + r][this.x +c]=this.color;
+            }
+        }
+    }
     collision(x,y,piece){
         for(let r = 0;r<piece.length;r++){
             for(let c = 0;c<piece.length;c++){
