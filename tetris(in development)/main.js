@@ -6,6 +6,8 @@ const COL = 10;
 const SQ = 40;
 const COLOR = "White";
 
+let score=0;
+
 function drawSquare(x,y, color){
     ctx.fillStyle = color;
     ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
@@ -83,6 +85,7 @@ class piece{
             this.draw();
         }
     }
+
     lock(){
         for(let r = 0; r < this.activeTetromino.length;r++){
             for(let c = 0; c < this.activeTetromino.length;c++){
@@ -97,6 +100,46 @@ class piece{
                 board[this.y + r][this.x +c]=this.color;
             }
         }
+        //tính điểm
+        for(let r = 0;r<ROW ;r++){
+            let isfull=true;
+            for(let c = 0; c < COL;c++){
+                isfull = isfull && (board[r][c] != COLOR)
+            }
+            if(isfull){
+                for(let y =r; y>1;y--){
+                    for(let c=0;c<COL;c++){
+                        board[y][c]=board[y-1][c];
+                    }
+                }
+                for(let c = 0 ; c < COL;c++){
+                    board[0][c]=COLOR;
+                }
+                score+=10;
+            }
+        }
+        drawBoard();
+        document.querySelector('#score').innerText = score;
+    }
+    rotate(){
+        let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+        let move = 0;
+
+        if(this.collision(0 ,0 , nextPattern)){
+            if(this.x > COL / 2){
+                move = -1;
+            }else{
+                move = 1;
+            }
+        }
+        if(!this.collision(0 ,0 , nextPattern)){
+            this.unDraw();
+            this.x += move;
+            this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+            this.activeTetromino = this.tetromino[this.tetrominoN];
+            this.draw();
+        }
+
     }
     collision(x,y,piece){
         for(let r = 0;r<piece.length;r++){
@@ -128,7 +171,7 @@ const pieces=[
     [O,"pink"],
     [K,"yellow"],
     [Z,"green"],
-    [X,"organe"],
+    [X,"yellow"],
     [R,"blue"]
 ];
 function randomPieces(){
@@ -144,7 +187,7 @@ document.addEventListener('keydown',function(e){
     }else if(e.keyCode==39){
         p.moveRight();
     }else if(e.keyCode==38){
-
+        p.rotate();
     }else if(e.keyCode==40){
         p.moveDown();
     }
