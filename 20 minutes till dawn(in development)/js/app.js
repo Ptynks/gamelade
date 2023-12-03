@@ -181,6 +181,7 @@ function draw() {
             var enemy = new Enemy(spawnX, spawnY, point)
 
             //enemy warning spawn
+            fill("white")
             ellipse(spawnX, spawnY, 10, 10)
             
             setTimeout(() => {
@@ -247,13 +248,6 @@ function draw() {
     }
 }
 
-function mousePressed() {
-    if(player.reloadBullet > 0) {
-        player.reloadBullet -= 1
-        bullets.push(new Bullet(player.x, player.y))
-    } 
-}
-
 function drawCrosshair() {
     push()
     translate(mouseX, mouseY)
@@ -302,4 +296,29 @@ function collideRectRect(x, y, w, h, x2, y2, w2, h2) {
         return true
     }
     return false
+}
+
+let interval
+
+function mousePressed() {
+    player.isAiming = true
+    interval = setInterval(() => {
+        if(player.aimPower < player.maxAimPower) {
+            player.aimPower += 2
+        }
+    }, 100)
+}
+
+function mouseReleased() {
+    player.isAiming = false
+    clearInterval(interval)
+    if(player.aimPower > player.maxAimPower / 3) {
+        let totalDamage = player.damage 
+        if(player.aimPower >= player.maxDamagePivot) {
+            totalDamage = player.damage * 2
+        }
+        bullets.push(new Bullet(player.x, player.y, totalDamage))
+        player.reloadBullet -= 1
+    }
+    player.aimPower = 0
 }

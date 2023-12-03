@@ -84,6 +84,12 @@ canvas {
     font-family: monospace;
 }
 
+
+#skillMenu {
+    display: none;
+    z-index: 99;
+}
+
 ul {
     list-style-type: none;
     display: flex;
@@ -93,21 +99,18 @@ ul {
 }
 
 ul li {
-    height: 50%;
+    height: 70%;
     border: 2px solid white;
     border-radius: 5px;
     padding: 10px;
-}
-
-ul li h4 {
-    margin-top: 50%;
+    width: 30%;
 }
 
 ul li button {
     min-width: 100px !important;
 }
 
-#skillMenu {
-    display: none;
-    z-index: 99;
+ul li p {
+    font-size: 8px;
+    margin-top: 20px;
 }

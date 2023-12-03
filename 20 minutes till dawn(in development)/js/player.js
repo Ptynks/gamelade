@@ -13,10 +13,29 @@ class Player {
         this.reloadTime = 1000
         this.level = 0
         this.pointToLevelUp = 100
+        this.isAiming = false
+        this.aimPower = 0
+        this.maxAimPower = 30
+        this.maxDamagePivot = this.maxAimPower * 0.7
+        this.damage = 5
     }
 
     draw() {
         square(this.x, this.y, this.size)
+        this.drawAim()
+    }
+
+    drawAim() {
+        if(this.isAiming) {
+            rectMode(CENTER)
+            rect(this.x, this.y - 15, this.size + 10, 3)
+            if(this.aimPower >= this.maxDamagePivot) {
+                fill("green")
+            } else {
+                fill("yellow")
+            }
+            rect(this.x, this.y - 15, this.aimPower, 5)
+        }
     }
 
     movement() {
@@ -63,6 +82,10 @@ class Player {
             document.querySelector("#skill_des_1").innerHTML = skillSlot[0][1]
             document.querySelector("#skill_des_2").innerHTML = skillSlot[1][1]
             document.querySelector("#skill_des_3").innerHTML = skillSlot[2][1]
+
+            document.querySelector("#skill_img_1").src = skillSlot[0][2]
+            document.querySelector("#skill_img_2").src = skillSlot[1][2]
+            document.querySelector("#skill_img_3").src = skillSlot[2][2]
         }
     }
 }

@@ -1,13 +1,13 @@
 class Bullet {
-    constructor(x, y) {
+    constructor(x, y, damage) {
         this.rad = 3
         this.x = x
         this.y = y
-        this.xSpeed = 10 // default 2.8
-        this.ySpeed = 10 //default 2.2
+        this.xSpeed = 14 // default 2.8
+        this.ySpeed = 14 //default 2.2
         this.xDirection = 0
         this.yDirection = 0
-        this.damage = 5
+        this.damage = damage
         this.spawn()
     }
 
