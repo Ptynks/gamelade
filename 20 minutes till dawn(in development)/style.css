@@ -31,16 +31,27 @@ canvas {
     width: 500px;
     height: 500px;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.231);
+    background-color: rgba(0, 0, 0);
     opacity: 0.8;
 }
 
 #startMenu {
     z-index: 90;
+    background-color: #fff6d3;
+    opacity: 1;
+}
+
+#startMenu img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 250px;
+    height: 250px;
 }
 
 .menu h1 {
     margin-top: 60px;
+    color: black;
 }
 
 .menu div {
@@ -51,19 +62,120 @@ canvas {
 }
 
 .btn {
-    padding: 10px;
-    min-width: 150px;
-    min-height: 30px;
-    background-color: transparent;
-    border-radius: 5px;
-    border: 2px solid white;
+    position: relative;
+    border: none;
+    background: none;
     cursor: pointer;
-    display: block;
+    padding: 30px 75px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 14px;
     margin: 20px auto;
+    transition: all .15s ease;
+}
+
+.btn::before, .btn::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: calc(50% - 5px);
+    border: 1px solid white;
+    transition: all .15s ease;
+}
+
+.btn::before {
+    top: 0;
+    border-bottom-width: 0;
+}
+
+.btn::after {
+    bottom: 0;
+    border-top-width: 0;
+}
+
+.btn:active, .btn:focus {
+    outline: none;
+} 
+
+.btn:active::before, .btn:active::after {
+    right: 3px;
+    left: 3px;
+}
+
+.btn:active::before {
+    top: 3px;
+}
+
+.btn:active::after {
+    bottom: 3px;
+}
+
+.inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 10px;
+    display: block;
+    width: 130px;
+    height: 40px;
+    padding: 10px 10px;
+    background-color: black;
+    overflow: hidden;
+    box-shadow: inset 0px 0px 0px 1px white;
+}
+
+.btn {
+    color: white;
+}
+
+.inner::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 2px;
+    background-color: black;
+}
+
+.inner::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    height: 4px;
+    background-color: black;
+    transition: all .2s ease;
+}
+
+.slide {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: -1px;
+    left: -8px;
+    width: 0;
+    background-color: rgb(247, 82, 82);
+    transform: skew(-15deg);
+    transition: all .2s ease;
+}
+
+.content {
+    position: relative;
 }
 
 .btn:hover {
-    box-shadow: 3px 3px 0 white;
+    color: red;
+}
+
+.btn:hover .slide {
+    width: calc(100% + 15px);
 }
 
 #gameOver {
@@ -112,5 +224,12 @@ ul li button {
 
 ul li p {
     font-size: 8px;
+    margin-top: 20px;
+}
+
+.skillBtn {
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid white;
     margin-top: 20px;
 }

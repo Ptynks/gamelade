@@ -224,7 +224,7 @@ function draw() {
         textSize(13)
         text("health: " + player.health, 10, 20)
         text("level: " + player.level, 10, HEIGHT - 30)
-        rect(0, HEIGHT - 10, player.point * WIDTH / 100, 20)
+        rect(0, HEIGHT, player.point * WIDTH / 100, 8)
         // for(let i = 0; i < player.reloadBullet; i++) {
         //     ellipse(WIDTH - 20 * (i + 2), 20, 5, 5)
         // }
@@ -298,10 +298,14 @@ function collideRectRect(x, y, w, h, x2, y2, w2, h2) {
     return false
 }
 
+//press left mouse to aim
 let interval
-
+let playerSpeedDefault = player.speed
 function mousePressed() {
     player.isAiming = true
+    playerSpeedDefault = player.speed
+    player.speed = player.speed * 0.7
+
     interval = setInterval(() => {
         if(player.aimPower < player.maxAimPower) {
             player.aimPower += 2
@@ -309,8 +313,10 @@ function mousePressed() {
     }, 100)
 }
 
+//release left mouse to shoot
 function mouseReleased() {
     player.isAiming = false
+    player.speed = playerSpeedDefault
     clearInterval(interval)
     if(player.aimPower > player.maxAimPower / 3) {
         let totalDamage = player.damage 

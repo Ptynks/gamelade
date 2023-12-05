@@ -3,7 +3,7 @@ class Enemy {
         this.x = x
         this.y = y
         this.size = 20
-        this.speed = (Math.random() + 1) * 3
+        this.speed = (Math.random() + 1) * 2
         this.xSpeed = this.speed
         this.ySpeed = this.speed
         this.xDirection = 0

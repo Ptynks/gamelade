@@ -13,15 +13,41 @@
   <div id="startMenu" class="menu">
     <h1>GAME LADE!</h1>
     <div>
-      <button class="btn" id="startBtn">Start</button>
+      <button class="btn" id="startBtn">
+        <span class="inner">
+          <span class="slide"></span>
+          <span class="content">
+            Bắt đầu
+          </span>
+        </span>
+      </button>
     </div>
+    <img id="mainMenuImg" src="images/pixel-ladies-free/006.png">
+    <script>
+      document.querySelector("#mainMenuImg").src = "images/pixel-ladies-free/00" + (Math.floor(Math.random() * 9) + 1) + ".png"
+    </script>
   </div>
 
   <div id="gameOver" class="menu">
     <h1>Game Over!</h1>
     <div>
-      <button class="btn" id="restartBtn">Restart</button>
-      <button class="btn" id="returnBtn">Main menu</button>
+      <button class="btn" id="restartBtn">
+        <span class="inner">
+          <span class="slide"></span>
+          <span class="content">
+            Chơi lại
+          </span>
+        </span>
+      </button>
+
+      <button class="btn" id="returnBtn">
+        <span class="inner">
+          <span class="slide"></span>
+          <span class="content">
+            Menu chính
+          </span>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -31,19 +57,19 @@
         <img src="" id="skill_img_1" width="100px" height="100px">
         <h4 id="skill_name_1">skill name</h4>
         <p id="skill_des_1">skill description</p>
-        <button class="btn" onclick="hideMenu()">get</button>
+        <button class="skillBtn" onclick="hideMenu()">get</button>
       </li>
       <li>
         <img src="" id="skill_img_2" width="100px" height="100px">
         <h4 id="skill_name_2">skill name</h4>
         <p id="skill_des_2">skill description</p>
-        <button class="btn" onclick="hideMenu()">get</button>
+        <button class="skillBtn" onclick="hideMenu()">get</button>
       </li>
       <li>
         <img src="" id="skill_img_3" width="100px" height="100px">
         <h4 id="skill_name_3">skill name</h4>
         <p id="skill_des_3">skill description</p>
-        <button class="btn" onclick="hideMenu()">get</button>
+        <button class="skillBtn" onclick="hideMenu()">get</button>
       </li>
     </ul>
   </div>
